@@ -1,3 +1,5 @@
+//  In particular, sorting in parallel is useful when you have a large dataset or when you use a computationally-expensive compare operation to sort your data.
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
