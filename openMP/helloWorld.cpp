@@ -16,12 +16,22 @@ int main()
 	std::cout << "Threads amount in sequential section: " << omp_get_num_threads() << std::endl;
 
 	std::cout << "Start parallel section: " << std::endl;
-#pragma omp parallel
+	#pragma omp parallel
 	{
 		std::cout << "Threads amount in parallel section: " << omp_get_num_threads() << std::endl;
 		int ID = omp_get_thread_num();
 		std::cout << " hello (" << ID << ")" << std::endl;
 		std::cout << " world (" << ID << ")" << std::endl;
+
+#pragma omp master
+		{
+			std::cout << "I'm master thread: " << ID << std::endl;
+		}
+
+#pragma omp single
+		{
+			std::cout << "I'm one of the treads: " << ID << std::endl;
+		}
 	}
 }
 
