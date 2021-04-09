@@ -1,16 +1,15 @@
 #include <mutex>
 
 /*
-	Идея в том, чтобы разбить приложение на отдельые слои и выявить все мьютексы,
-	которые могут быть захвачены в каждом слое.
+	The idea is to split the application into separate layers and reveal all the mutexes, which can be captured in each layer.
 
-	Программ будет отказано захватить мьютекс, если она уже удерживает
-	какой-то мьютекс изнижележайшего слоя.
+	Programs will refuse to acquire a mutex if it is already holding
+	some kind of mutex from the underlying layer.
 
-	Чтобы проверить это во время выполнения, следует приписать каждому мьютексу номер слоя
-	и вести учёт мьютексам, захваченным каждым потоком
+	To check this at runtime, assign a layer number to each mutex.
+	and keep track of the mutexes captured by each thread
 
-	hierarchical_mutex не определён в стандартной бибилиотеке, но может быть выведё как:
+	hierarchical_mutex is not defined in the standard library, but can be output as:
 */
 
 class hierarchical_mutex {
@@ -57,13 +56,13 @@ public:
 	}
 };
 
-// инициализация максимумом -> возможность захватить любой мьютекс
-// для thread_local в каждом потоке - своя копия
+// Initialization with maximum -> the ability to capture any mutex 
+// for thread_local in each thread - its own copy
 thread_local unsigned long hierarchical_mutex::this_thread_hierarchy_value(ULONG_MAX);
 
 
-/* для данного типа можно использовать std::lock_guard<>, т.к  в нём присутствуют
-	все три функции члена, необходимые для удовлетворения требований концепции мьютекса:
+/*  for this type, you can use std::lock_guard<>, because it contains
+	all three member functions needed to satisfy the requirements of the mutex concept:
 	lock(), unlock(), try_lock();
 */	
 
@@ -79,15 +78,15 @@ int low_level_func() {
 
 void high_level_stuff(int some_param);
 
-// захватывает high_level_mutex 
-// а затем вызывает low_level_func(), в которой захватывается low_lewel_mutex
-// здесь всё правильно.
+// capture high_level_mutex 
+// then call low_level_func(), in which captured low_lewel_mutex
+// there everything is right.
 void high_level_func() {
 	std::lock_guard<hierarchical_mutex> lk(high_level_mutex); 
 	high_level_stuff(low_level_func()); 
 }
 
-// соблюдает правила и выполняется беспрепятственно
+// follows the rules and is executed without hindrance
 void thread_a() { 
 	high_level_func();
 }
@@ -100,9 +99,9 @@ void other_stuff() {
 	do_other_stuff();
 }
 
-// нарушает правила, во время выполнения столкнётся с трудностями
-// тк захватывет самый нижний в иерархие mutex, а затем пытается захватить высшие mutex
-// --> исключение или аварийное заверение
+// breaks the rules, will run into difficulties during execution:
+// captures the lowest mutex in the hierarchy and then tries to capture the highest mutex
+// -> exception or emergency confirmation
 void thread_b() {
 	std::lock_guard<hierarchical_mutex> lk(other_mutex);
 		other_stuff();

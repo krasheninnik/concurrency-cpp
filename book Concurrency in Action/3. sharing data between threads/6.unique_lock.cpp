@@ -1,16 +1,16 @@
 #include <mutex>
 
-/* функция std::lock() и шаблон класса std::lock_guard покрывают большую часть простых
- случаев блокировки, но иногда этого недостаточно. Поэтому с тандартную библиотеку включен
- так-же шаблон std::unique_lock <-- предостпвляет большую гибкость
+/*  the std::lock() function and the std::lock_guard class template cover most of the simple
+    blocking cases, but sometimes that's not enough. Therefore the standard library is included
+    also the std::unique_lock<> template - provides more flexibility
 
- std::unique_lock не обязан владеть ассоциированыым с ним мьютексом.
-		// Второй аргумент:
-			std::adopt_lock - управление захватом мьютекса
-			std::defer_lock - мьютекс не долэен захватываться,
-	
-	захватить можно будет позже, использя lock() объекта std::unique_lock()
-	или передав функции std::lock() объект std::unique_lock.
+    std::unique_lock<> is not required to own the associated mutex.
+		// Second argument:
+		std::adopt_lock - control the acquisition of the mutex
+		std::defer_lock - the mutex should not be captured,
+
+	you can lock it later using lock() of the std::unique_lock() object
+	or by passing the std::lock() function a std::unique_lock object.
 */
 
 class some_big_object {};
@@ -29,16 +29,16 @@ public:
 			return;
 		std::unique_lock<std::mutex> lock_a(lhs.m, std::defer_lock);
 		std::unique_lock<std::mutex> lock_b(rhs.m, std::defer_lock);
-		// захват мьютексов:
+		// capture mutexs:
 		std::lock(lock_a, lock_b);
 		swap(lhs.some_detail, rhs.some_detail);
 	}
 };
 
-// функции std::unique_lock вызывают функции мьютекса, а сами поднимаю флаг, 
-// соответствующий владению/невладению мьютексом
+// std::unique_lock functions call the mutex functions, and I raise the flag myself,
+// corresponding to ownership / non-ownership of the mutex
 
-// передача владения мьютексом между контентами:
+// transfer ownership of the mutex between contents:
 void prepare_data();
 void do_something();
 
@@ -46,7 +46,7 @@ std::unique_lock<std::mutex> get_lock() {
 	extern std::mutex some_mutex;
 	std::unique_lock<std::mutex> lk(some_mutex);
 	prepare_data();
-	return lk;  // возврат мьютекса
+	return lk;  // return mutex
 }
 
 void process_data() {
@@ -54,7 +54,7 @@ void process_data() {
 	do_something();
 }
 
-/* Наличие возможности освобождать блокировку до уничтожения объекта std::unique_lock
-означает, что освобождение можно произвести досрочно в какой-то ветка кода, если
-ясно, что блокировка больше не понадобится.
+/* Being able to release the lock before the std::unique_lock object is destroyed
+means that the release can be made ahead of schedule in some branch of the code, if
+it is clear that the lock will no longer be needed.
 */

@@ -2,9 +2,9 @@
 
 std::recursive_mutex rm;
 
-/* recursive_mutex работает аналогично mutex, но с одним отличем:
-	один и тот же поток может многократно захватывать данный мьютекс.
-	Но перед тем, как этот мьютекс сможет захватить другой поток,
-	его необходимо столько же раз освободить, сколько он был захвачен.
-	!!! Не рекомендуется к использованию !!!
+/* recursive_mutex works similarly to mutex, with one difference:
+	the same thread can acquire a given mutex multiple times.
+	But before this mutex can take over another thread,
+	he must be freed as many times as he was captured.
+	!!! It is not recommended for use !!!
 */

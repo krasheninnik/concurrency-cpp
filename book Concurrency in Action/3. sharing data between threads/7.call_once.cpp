@@ -1,9 +1,8 @@
 #include <mutex>
 
-// защита разделяемых данных во время инициальзации
-/* вместо того чтобы захватить мьютекс и явно проверять указатель, каждый поток
-может вызывать std::call_once. (издержки обычно ниже, чем при применение mutex)
-
+// Protecting shared data during initialization
+/* instead of grabbing a mutex and checking the pointer explicitly, each thread
+	can call std::call_once. (costs are usually lower than using mutex)
 */
 struct some_resource {
 	void do_something();
@@ -17,13 +16,13 @@ void init_resource() {
 }
 
 void foo() {
-	// единственная инициализация
+	// single initialization
 	std::call_once(resource_flag, init_resource);
-	// использование
+	// usage
 	resource_ptr->do_something();
 }
 
-// Можно использовать и для отложенной инициализации членов класса:
+// Can also be used for lazy initialization of class members:
 struct data_packet {};
 struct connection_info {};
 struct connection_handle {

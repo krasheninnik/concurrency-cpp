@@ -1,7 +1,6 @@
-/* При вызове объекта std::packaged_task<> ассоциированная функция 
-   вызывается и делает будущий ркзультат готовым, сохраняя возвращенное
-   значение в виде ассоциированных данных.
-*/
+//When calling a std::packaged_task<> object, the associated function
+//  gets called and prepares a future result while storing the returned
+//  value as related data
 
 #include <deque>
 #include <mutex>

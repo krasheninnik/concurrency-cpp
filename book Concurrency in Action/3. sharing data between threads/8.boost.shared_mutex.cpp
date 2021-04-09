@@ -3,7 +3,7 @@
 #include <mutex>
 #include <boost/thread/shared_mutex.hpp>
 
-// Использование для редко обновляемых структур данных
+// Used for rarely updated data structures
 
 class dns_entry {};
 
@@ -19,7 +19,7 @@ public:
 	}
 
 	void update_or_add_entry(std::string const& domain, dns_entry const& dns_details) {
-		// lock guard обеспечивает монопольный доступ на время обновления таблицы
+		// lock guard provides exclusive access while the table is being updated
 		std::lock_guard<boost::shared_mutex> lk(entry_mutex);
 		entries[domain] = dns_details;
 	}

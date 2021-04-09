@@ -2,10 +2,10 @@
 #include <mutex>
 #include <algorithm>
 
-// advice
-// Не передавайте указатели и ссылки на защищённые данные за пределы области видимости
-// блокировки никаким способом, будь то возврат из функии, сохранение в видиой извне памяти
-// или передача в виде аргумента пользовательской функции.
+// Advice:
+// Do not pass pointers and references to protected data outside the scope of the lock in any way,
+// be it returning from a function, storing it in memory visible from outside,
+// or passing it as an argument to a user-defined function.
 
 class some_data {
 private:
@@ -23,7 +23,7 @@ public:
 	template<typename Function>
 	void process_data(Function func) {
 		std::lock_guard<std::mutex> l(m);
-		func(data);  // передача защищённый данных пользовательской функции
+		func(data);  // secured data transfered to a custom function
 	}
 };
 
@@ -36,6 +36,6 @@ void malicious_function(some_data& protected_data) {
 data_wrapper x;
 
 void foo() {
-	x.process_data(malicious_function); // вредоносная функций в класс
-	unprotected->do_something();		// доступ к защищённым данным
+	x.process_data(malicious_function); // malicious functions in class
+	unprotected->do_something();		// access protected data
 }

@@ -1,8 +1,7 @@
 #include <mutex>
 
-// std::lock помогает избежать взаимоблокировки в случаях, когда нужно
-// захватить сразу два или более мьютексов, но она не в силах помочь,
-// если mutex's захватываются порознь
+// std::lock helps to avoid deadlocks in cases where two or more mutexe's
+// need to be captured at once, but it can not help if mutex's are captured separately
 
 class some_big_object {};
 
@@ -18,11 +17,11 @@ public:
 		if (&lhs == &rhs)
 			return;
 
-		// примененеие std::lock для захвата двух mutex's
+		// Using std::lock to capture mutex's
 		std::lock(lhs.m, rhs.m);
 
-		// конструируем std::lock_guard для каждого mutexs,
-		// std::adopt_lock сообщает, что mutex's уже захвачены
+		// Construct std::lock_guard for each mutexs,
+		// std::adopt_lock report, that mutex's are already captured
 		std::lock_guard<std::mutex> lock_a(lhs.m, std::adopt_lock);
 		std::lock_guard<std::mutex> lock_b(rhs.m, std::adopt_lock);
 		swap(lhs.some_detail rhs.some_detail);

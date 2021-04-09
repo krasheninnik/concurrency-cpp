@@ -7,8 +7,7 @@ bool done;
 std::mutex m;
 
 
-// рекомендуемые способ ожидания условной переменной с ограничением по времени.
-// когда предикат не указывается
+// recomended method for waiting CV with time limitation (when no predicate)
 bool wait_loop() {
 	auto const timeout = std::chrono::steady_clock::now() +
 		std::chrono::milliseconds(500);
@@ -23,6 +22,4 @@ bool wait_loop() {
 
 }
 
-/* При использование wait_for() в случае ложных пробуждений потока
-	таймер сбрасывается (начинает отсчёт с 0 --> может быть неограничен по времени)
-*/
+//  In the case of spurious wake up wait_for() reset the wait timer. 

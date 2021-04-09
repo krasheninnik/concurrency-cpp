@@ -14,26 +14,20 @@ void data_preparation_thread() {
 		std::lock_guard<std::mutex> lk(mut);
 		data_queue.push(data); // 2
 
-		// извещение ожидающего потока (если такой есть)
+		// notify waiting thread (if someone wait)
 		data_cond.notify_one(); // 3
 	}
 }
 
-// стоит учитывать ложные пробуждения (spurious wake)
-// когда поток проснулся не от извещения, а произвольно
-// поэтому не желательно использовать функцию для проверки с побочными эффектами.ы
+// consider spurious wake: process can occasionally awake without notification
 void data_processing_thread() {
 	while (true) {
-		// неободим unique_lock (возможность захвата и освобождения мьютекса)
+		// neded unique_lock (posibility of capture and release mutex)
 		std::unique_lock<std::mutex> lk(mut); // 4
 
-		// в wait передаётся объект блокировки (мьютекс) и предикат (условие)
-		// захватывается мьютекс
-		// если условие return true -> продолжение выполнения
-		// иначе -> освобождение мьютекса и переход в состояние ожидания
+		// A lock object and predicate are passed in wait
 		data_cond.wait(lk, [] {return !data_queue.empty(); }); // 5
-		// когда прийдёт извещение от notify_one(), процесс проснётся, и снова зайдёт в wait() ^
-
+	
 		data_chunk data = data_queue.front();
 		data_queue.pop();
 		lk.unlock(); // 6
